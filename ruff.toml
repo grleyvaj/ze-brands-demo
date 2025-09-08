@@ -1,0 +1,54 @@
+# Ruff configuration para ZeBrands
+
+# Carpetas a excluir globalmente
+exclude = [
+    ".venv",
+    "build",
+    "dist",
+    "node_modules",
+    ".git",
+    ".tox",
+    ".mypy_cache"
+]
+
+[lint]
+# Reglas principales
+select = ["ALL"]
+ignore = [
+    "D",
+    "DTZ003",
+    "FBT001",
+    "FBT002",
+    "G004",
+    "DTZ007",
+    "A003",
+    "E712",
+    "E711",
+    "A002",
+    "PLR0913",
+    "TC003",
+    "FA102",
+    "TC001",
+    "B008",
+    "ANN204",
+    "ANN401",
+    "TRY002",
+]
+
+# Variables dummy permitidas
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Reglas que Ruff puede corregir automáticamente
+fixable = [
+    "A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W",
+    "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE",
+    "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL",
+    "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH",
+    "TID", "TRY", "UP", "YTT"
+]
+
+# Reglas que Ruff no puede corregir
+unfixable = []
+
+# Ignorar reglas solo en tests
+per-file-ignores = { "tests/*" = ["E501", "S101", "ANN201"] }

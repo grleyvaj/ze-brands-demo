@@ -1,0 +1,882 @@
+openapi: 3.0.0
+info:
+  title: ZeBrands Catalog API
+  description: API for manage catalog of products and users
+  version: 1.0.0
+  contact:
+    name: ZeBrands Support
+    url: https://github.com/grleyvaj
+    email: support@zebrands.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://zebrands.com/terms
+paths:
+  /login:
+    post:
+      tags:
+        - Access
+      summary: Login a user
+      description: Authenticates a user with username and password and returns a JWT access token.
+      operationId: login_login_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                detail: Unauthorized
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - bearerAuth: [ ]
+  /sigup:
+    post:
+      tags:
+        - Access
+      summary: Register a new user
+      description: Creates a new user account as an ANONYMOUS user of the application. Returns the user details after successful registration.
+      operationId: sig_up_sigup_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigUpRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                detail:
+                  - loc:
+                      - username
+                      - email
+                    msg: User with USERNAME 'grleyva' or EMAIL 'grleyva.test@gmail.com' already exists
+                    type: ALREADY_EXIST_USER
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - bearerAuth: [ ]
+  /brands:
+    post:
+      tags:
+        - Brands
+      summary: Create a new brand
+      description: Creates a new brand in the catalog. Validates that the NAME is unique.
+      operationId: create_brand_brands_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrandCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BrandDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                detail:
+                  - loc:
+                      - name
+                    msg: Brand with NAME 'Nike' already exists
+                    type: ALREADY_EXIST_BRAND_NAME
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - bearerAuth: [ ]
+  /products:
+    post:
+      tags:
+        - Products
+      summary: Create a new product
+      description: Creates a new product in the catalog. Validates that the SKU is unique. Accessible by only admins.
+      operationId: create_product_products_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                detail:
+                  - loc:
+                      - sku
+                    msg: Product with SKU '123' already exists
+                    type: ALREADY_EXIST_PRODUCT_SKU
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - bearerAuth: [ ]
+  /products/views:
+    get:
+      tags:
+        - Products
+      summary: Views of products
+      description: Returns a list of products's views. Optionally filter by brand_id. Includes view counts.
+      operationId: views_report_products_views_get
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: brand_id
+          in: query
+          required: false
+          schema:
+            anyOf:
+              - type: string
+            title: Brand ID
+            description: Filter products by brand ID
+          description: Filter products by brand ID
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /products/{product_id}:
+    get:
+      tags:
+        - Products
+      summary: Get product details
+      description: Retrieves the details of a product by its ID. Accessible by anonymous users or admins.
+      operationId: get_product_products__product_id__get
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Product identifier in ULID format
+            title: Product Id
+          description: Product identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetailResponse'
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              example:
+                detail: Product not found
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - Products
+      summary: Update an existing product
+      description: Updates the fields of an existing product. Only admins can perform this action.
+      operationId: update_product_products__product_id__put
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Product identifier in ULID format
+            title: Product Id
+          description: Product identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductDetailResponse'
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              example:
+                detail: Product not found
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Products
+      summary: Delete a product
+      description: Deletes a product by ID. Only admins can perform this action.
+      operationId: delete_product_products__product_id__delete
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: product_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: Product identifier in ULID format
+            title: Product Id
+          description: Product identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /users:
+    post:
+      tags:
+        - Users
+      summary: Create a new admin user
+      description: Creates a new user with ADMIN role. Only users with ADMIN permissions can perform this action. Returns the details of the newly created admin user.
+      operationId: create_user_users_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                detail:
+                  - loc:
+                      - username
+                      - email
+                    msg: Username already exists
+                    type: ALREADY_EXIST_USER
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              example:
+                detail: Product not found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - bearerAuth: [ ]
+  /users/{user_id}:
+    put:
+      tags:
+        - Users
+      summary: Update user's email
+      description: Updates the email of an existing user. Only admins can perform this action.
+      operationId: update_user_users__user_id__put
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: User identifier in ULID format
+            title: User Id
+          description: User identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetailResponse'
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '404':
+          content:
+            application/json:
+              example:
+                detail: User not found
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - Users
+      summary: Delete a user
+      description: Deletes a user by ID. Only admins can perform this action.
+      operationId: delete_user_users__user_id__delete
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            description: User identifier in ULID format
+            title: User Id
+          description: User identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+      responses:
+        '204':
+          description: Successful Response
+        '403':
+          content:
+            application/json:
+              example:
+                detail: You do not have permission to perform this action
+          description: Forbidden
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    BrandCreateRequest:
+      properties:
+        name:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Name
+          description: Brand's name
+          example: Nike
+        description:
+          anyOf:
+            - type: string
+              maxLength: 255
+              minLength: 1
+          title: Description
+          description: Brand's description
+          example: Sportswear and athletic footwear
+        logo_url:
+          anyOf:
+            - type: string
+              maxLength: 255
+              minLength: 1
+          title: Logo Url
+          description: Brand's logo URL
+          example: https://example.com/logos/nike.png
+      type: object
+      required:
+        - name
+      title: BrandCreateRequest
+    BrandDetailResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Brand identifier in ULID format
+          example: 01K4G2APXKSSFTYR911GYBDVZX
+        name:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Name
+          description: Brand's name
+          example: Nike
+        description:
+          anyOf:
+            - type: string
+              maxLength: 255
+              minLength: 1
+          title: Description
+          description: Brand's description
+          example: Sportswear and athletic footwear
+        logo_url:
+          anyOf:
+            - type: string
+              maxLength: 255
+              minLength: 1
+          title: Logo Url
+          description: Brand's logo URL
+          example: https://example.com/logos/nike.png
+      type: object
+      required:
+        - id
+        - name
+      title: BrandDetailResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ProductCreateRequest:
+      properties:
+        brand_id:
+          type: string
+          title: Brand Id
+          description: Brand identifier in ULID format
+          example: 01K4G2APXKSSFTYR911GYBDVZX
+        sku:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Sku
+          description: Unique product code (SKU)
+          example: SKU-12345
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Product's name
+          example: T-Shirt
+        price:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: string
+          title: Price
+          description: Product's price
+          example: 49.99
+      type: object
+      required:
+        - brand_id
+        - sku
+        - name
+        - price
+      title: ProductCreateRequest
+    ProductDetailResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Product identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+        sku:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Sku
+          description: Unique product code (SKU)
+          example: SKU-12345
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Product's name
+          example: T-Shirt
+        price:
+          type: string
+          title: Price
+          description: Product's price
+          example: 49.99
+        brand_id:
+          type: string
+          title: Brand Id
+          description: Brand identifier in ULID format
+          example: 01K4G2APXKSSFTYR911GYBDVZX
+      type: object
+      required:
+        - id
+        - sku
+        - name
+        - price
+        - brand_id
+      title: ProductDetailResponse
+    ProductListItemResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Product identifier in ULID format
+          example: 01K4EH5T4YQERHJ99RM1SWYV99
+        name:
+          type: string
+          title: Name
+          description: Product's name
+          example: T-Shirt
+        views:
+          type: integer
+          title: Views
+          description: Product's views
+          example: 5
+      type: object
+      required:
+        - id
+        - name
+        - views
+      title: ProductListItemResponse
+    ProductListResponse:
+      properties:
+        products:
+          items:
+            $ref: '#/components/schemas/ProductListItemResponse'
+          type: array
+          title: Products
+          description: Product list with its views
+      type: object
+      required:
+        - products
+      title: ProductListResponse
+    ProductUpdateRequest:
+      properties:
+        sku:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Sku
+          description: Unique product code (SKU)
+          example: SKU-12345
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+          description: Product's name
+          example: T-Shirt
+        price:
+          anyOf:
+            - type: number
+              minimum: 0
+            - type: string
+          title: Price
+          description: Product's price
+          example: 49.99
+        brand_id:
+          type: string
+          title: Brand Id
+          description: Brand identifier in ULID format
+          example: 01K4G2APXKSSFTYR911GYBDVZX
+      type: object
+      required:
+        - sku
+        - name
+        - price
+        - brand_id
+      title: ProductUpdateRequest
+    SigUpRequest:
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          minLength: 3
+          title: Username
+          description: Unique username of the user
+          example: user123
+        email:
+          type: string
+          maxLength: 100
+          minLength: 5
+          format: email
+          title: Email
+          description: Unique email address of the user
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          title: Password
+          description: Password in plain text (it will be hashed before storing)
+          example: MySecurePassword123!
+      type: object
+      required:
+        - username
+        - email
+        - password
+      title: SigUpRequest
+    TokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+          description: Access token
+          example: wewerwerwer....
+        token_type:
+          type: string
+          title: Token Type
+          default: bearer
+      type: object
+      required:
+        - access_token
+      title: TokenResponse
+    UserCreateRequest:
+      properties:
+        username:
+          type: string
+          maxLength: 50
+          minLength: 3
+          title: Username
+          description: Unique username of the user
+          example: user123
+        email:
+          type: string
+          maxLength: 100
+          minLength: 5
+          format: email
+          title: Email
+          description: Unique email address of the user
+          example: user@example.com
+        password:
+          type: string
+          minLength: 8
+          title: Password
+          description: Password in plain text (it will be hashed before storing)
+          example: MySecurePassword123!
+      type: object
+      required:
+        - username
+        - email
+        - password
+      title: UserCreateRequest
+    UserDetailResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: User identifier in ULID format
+          example: 01K4EH5QV1TWJXQAJVSN4MCKM0
+        email:
+          type: string
+          title: Email
+          description: Unique email address of the user
+          example: user@example.com
+        username:
+          type: string
+          title: Username
+          description: Unique username of the user
+          example: user123
+        hashed_password:
+          type: string
+          title: Hashed Password
+          description: Password in plain text (it will be hashed before storing)
+          example: MySecurePassword123!
+        role:
+          $ref: '#/components/schemas/UserRole'
+          description: 'Role of the user: ADMIN or ANONYMOUS'
+          example: ADMIN
+      type: object
+      required:
+        - id
+        - email
+        - username
+        - hashed_password
+        - role
+      title: UserDetailResponse
+    UserLoginRequest:
+      properties:
+        username:
+          type: string
+          title: Username
+          description: Username
+          example: grleyva
+        password:
+          type: string
+          title: Password
+          description: User's password
+          example: MySecurePassword123!
+      type: object
+      required:
+        - username
+        - password
+      title: UserLoginRequest
+    UserRole:
+      type: string
+      enum:
+        - SUPERADMIN
+        - ADMIN
+        - ANONYMOUS
+      title: UserRole
+    UserUpdateRequest:
+      properties:
+        email:
+          type: string
+          maxLength: 100
+          minLength: 5
+          format: email
+          title: Email
+          description: Unique email address of the user
+          example: user@example.com
+      type: object
+      required:
+        - email
+      title: UserUpdateRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+  - url: http://localhost:8082
+    description: Development server
+  - url: https://uat.api.zebrands.com
+    description: UAT server
+  - url: https://api.zebrands.com
+    description: Production server
+tags:
+  - name: Access
+    description: Manage access
+  - name: Users
+    description: Operations with users
+  - name: Brands
+    description: Operations with brands
+  - name: Products
+    description: Operations with products

@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    ports:
+      - "${DEV_PORT}:8081"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ze_brands_test
+    ports:
+      - "5432:5432"

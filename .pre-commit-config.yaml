@@ -1,0 +1,27 @@
+repos:
+  # Ruff Linter
+  - repo: local
+    hooks:
+      - id: ruff
+        name: Ruff Linter
+        entry: poetry run ruff check . --fix
+        language: system
+        pass_filenames: false
+
+  # Black formatter
+  - repo: local
+    hooks:
+      - id: black
+        name: Black Formatter
+        entry: poetry run black .
+        language: system
+        pass_filenames: false
+
+  # Run tests
+#  - repo: local
+#    hooks:
+#      - id: pytest
+#        name: Run tests
+#        entry: poetry run pytest
+#        language: system
+#        pass_filenames: false
