@@ -13,8 +13,7 @@ Se expone adicionalmente un endpoint para consultar un reporte de visualizacione
 Se desarrollaron pruebas unitarias y de integración en código y con una **test suite** programada en **Postman con JS**.
 
 Se aplicaron buenas prácticas como el uso de **uff linter**, gestor de dependencias **poetry**, configuración de **pre-commits**, cobertura de test, 
-contenerización de la api con docker en local y en un **ECS** con **ECR** de **AWS**,
-documentación de la API con **swagger**, entre otras.
+contenerización, documentación de la API con **swagger**, entre otras.
 
 ---
 
