@@ -2,8 +2,8 @@ __pycache__/
 *.pyc
 .venv/
 venv/
-.env
-.env.*
+#.env
+#.env.*
 *.sqlite
 .idea/
 .vscode/
