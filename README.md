@@ -179,5 +179,5 @@ El cual puede importar directamente en postman
 
 ## 🔗 Repositorio
 ```bash
-git remote add origin https://github.com/grleyvaj/ze-brands-test
+git clone git@github.com:grleyvaj/ze-brands-demo.git
 ```
