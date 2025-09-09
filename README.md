@@ -1,11 +1,20 @@
 # Ze Brands Catalog API
 
-API para la gestión de productos, marcas y usuarios, con autenticación JWT, desarrollado con FastApi sobre una arquitectura hexagonal centrada en DDD.
+**API** para la gestión de productos, marcas y usuarios, con autenticación **JWT**, desarrollada con **FastApi** sobre una arquitectura **hexagonal** centrada en **DDD**, 
+permitiendo aislar la lógica de negocio en el dominio mientras abstrae las dependencias tecnológicas en la infraestructura,
+facilitando cambios de tecnología, escalabilidad y mantenibilidad de manera más ágil.
 
-Los usuarios ADMIN podrán crear/actualizar/eliminar productos y también podrán crear/actualizar/eliminar otros usuarios ADMIN (Se creó un usuario ADMIN por defecto con migraciones, empleando credenciales añadidas en el ENV).
-Al momento de actualizar un producto se notifica vía email empleando el servicio AWS SES. 
+Los usuarios ADMIN podrán crear/actualizar/eliminar productos y también podrán crear/actualizar/eliminar otros usuarios ADMIN.
+Al momento de actualizar un producto se notifica vía email empleando el servicio **AWS SES**. 
 
-Los usuarios ANONYMOUS solo pueden consultar los detalles de productos, y al consultarlo se incrementa el número de vistas del producto. Se expone adicionalmente un endpoint para consultar un reporte de vistas.
+Los usuarios ANONYMOUS solo pueden consultar los detalles de productos, y al consultarlo se incrementa el número de vistas del producto. 
+Se expone adicionalmente un endpoint para consultar un reporte de visualizaciones de productos con filtro opcional de marca.
+
+Se desarrollaron pruebas unitarias y de integración en código y con una **test suite** programada en **Postman con JS**.
+
+Se aplicaron buenas prácticas como el uso de **uff linter**, gestor de dependencias **poetry**, configuración de **pre-commits**, cobertura de test, 
+contenerización de la api con docker en local y en un **ECS** con **ECR** de **AWS**,
+documentación de la API con **swagger**, entre otras.
 
 ---
 
@@ -145,15 +154,26 @@ poetry run pre-commit run --all-files
 - Cobertura actual: **142 tests → 90% coverage**
 
 ---
+### Test suite
+Como buena práctica se automatizó en POSTMAN una suite de pruebas con Javascript
+
+Esta suite contiene el HAPPY PATH del ejercicio y también flujos de validaciones: qué puede hacer un ADMIN/ANONYMOUS
+![test-postman-suite.png](images/test-postman-suite.png)
+
+                    
+Para usar esta suite de pruebas solo debe configurar las siguientes variables de entorno según haya configurado su .ENV
+![test-postman-suite-env.png](images/test-postman-suite-env.png)
+
+---
 
 ## 📂 Recursos adicionales
 
-- `openapi.yml` → documentación OpenAPI generada automáticamente  
-Se adjuntó en la carpeta `documents` el archivo **OpenAPI Spec (`openapi.yml`)** → [📄 documentation/openapi.yml](documentation/openapi.yml)  
-Que puede renderizar en `https://editor.swagger.io/`
-- `ZeBrands Catalog API.postman_collection.json` → colección de Postman lista con variables de entorno y suite de pruebas  
-Se adjuntó en la carpeta `documents` el archivo de la **Colección Postman** → [📄 documentation/ZeBrands Catalog API.postman_collection.json](documentation/ZeBrands%20Catalog%20API.postman_collection.json) 
-El cual puede importar directamente en postman
+- `OpenAPI Spec` → [📄 documentation/openapi.yml](documentation/openapi.yml)  
+  Que puede renderizar en https://editor.swagger.io/
+
+- `Colección de Postman` → [📄 documentation/ZeBrands Catalog API.postman_collection.json](documentation/ZeBrands_Catalog_API.postman_collection.json)
+
+- `Variables de entorno Postman` → [📄 documentation/LOCAL.postman_environment.json](documentation/LOCAL.postman_environment.json)
 
 ---
 
