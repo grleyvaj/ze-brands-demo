@@ -4,6 +4,7 @@ from app.domain.enums.code_enum import ErrorCodeEnum
 
 
 class ResourceNotFoundError(Exception):
+    message: str
 
     def __init__(
         self: "ResourceNotFoundError",

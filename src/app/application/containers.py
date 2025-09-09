@@ -27,7 +27,7 @@ from app.domain.use_cases.users.login.login_use_case import LoginUseCase
 from app.domain.use_cases.users.remove.user_remove_use_case import UserRemoveUseCase
 from app.domain.use_cases.users.sig_up.sig_up_use_case import SigUpUseCase
 from app.infrastructure.db.database_repository import DatabaseRepository
-from app.infrastructure.persistence.postgres_brand__repository import (
+from app.infrastructure.persistence.postgres_brand_repository import (
     PostgresBrandRepository,
 )
 from app.infrastructure.persistence.postgres_product_repository import (
@@ -84,6 +84,7 @@ container[ProductUpdateUseCase] = lambda c: ProductUpdateUseCase(
 )
 container[ProductRemoveUseCase] = lambda c: ProductRemoveUseCase(
     product_repository=c[ProductRepository],
+    view_repository=c[ProductViewRepository],
 )
 container[ProductDetailUseCase] = lambda c: ProductDetailUseCase(
     product_repository=c[ProductRepository],

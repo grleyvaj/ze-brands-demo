@@ -1,0 +1,38 @@
+{
+  "family": "ze-brands-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::513126262484:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::513126262484:role/ecsTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "ze-brands-api",
+      "image": "513126262484.dkr.ecr.us-east-1.amazonaws.com/ze-brands-api:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8080,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "ENV",
+          "value": "production"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/ze-brands-api",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ze-brands-api"
+        }
+      }
+    }
+  ]
+}

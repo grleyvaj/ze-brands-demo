@@ -9,19 +9,19 @@ class BrandCreateRequest(BaseModel):
         description="Brand's name",
         min_length=1,
         max_length=128,
-        example="Nike",
+        json_schema_extra={"example": "Nike"},
     )
     description: str | None = Field(
         None,
         description="Brand's description",
         min_length=1,
         max_length=255,
-        example="Sportswear and athletic footwear",
+        json_schema_extra={"example": "Sportswear and athletic footwear"},
     )
     logo_url: str | None = Field(
         None,
         description="Brand's logo URL",
         min_length=1,
         max_length=255,
-        example="https://example.com/logos/nike.png",
+        json_schema_extra={"example": "https://example.com/logos/nike.png"},
     )

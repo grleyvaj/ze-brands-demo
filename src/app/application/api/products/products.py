@@ -114,7 +114,7 @@ def views_report(
         Query(
             title="Brand ID",
             description="Filter products by brand ID",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ] = None,
 ) -> ProductListResponse:
@@ -170,7 +170,7 @@ def get_product(
         Path(
             ...,
             description="Product identifier in ULID format",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ],
     user: Annotated[dict, Depends(RoleChecker(["ADMIN", "ANONYMOUS"]))],
@@ -216,7 +216,7 @@ def update_product(
         Path(
             ...,
             description="Product identifier in ULID format",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ],
 ) -> ProductDetailResponse:
@@ -255,7 +255,7 @@ def delete_product(
         Path(
             ...,
             description="Product identifier in ULID format",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ],
 ) -> None:

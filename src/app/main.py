@@ -2,6 +2,7 @@
 import asyncio
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
@@ -21,6 +22,8 @@ from app.infrastructure.db.session import Base, engine  # noqa: F401
 from app.infrastructure.entity.user_entity import UserEntity
 from app.openapi import openapi
 from scripts.run_yoyo_migrations import normalize_for_yoyo, run_yoyo_migrations_sync
+
+load_dotenv()
 
 
 # ----------------------------

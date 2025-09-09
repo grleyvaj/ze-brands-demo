@@ -1,29 +1,183 @@
-# ze-brands-test
+# Ze Brands Catalog API
 
+API para la gestión de productos, marcas y usuarios, con autenticación JWT, desarrollado con FastApi sobre una arquitectura hexagonal centrada en DDD.
 
-# En desarrollo aplico lint y test
+Los usuarios ADMIN podrán crear/actualizar/eliminar productos y también podrán crear/actualizar/eliminar otros usuarios ADMIN (Se creó un usuario ADMIN por defecto con migraciones, empleando credenciales añadidas en el ENV).
+Al momento de actualizar un producto se notifica vía email empleando el servicio AWS SES. 
+
+Los usuarios ANONYMOUS solo pueden consultar los detalles de productos, y al consultarlo se incrementa el número de vistas del producto. Se expone adicionalmente un endpoint para consultar un reporte de vistas.
+
+---
+
+## ⚙️ Pre-requisitos
+
+- **Postgres database**  
+- Crear la base de datos **ze_brands_test** (o la que establezca en su .env)
+- Definir variables de entorno en un archivo `.env`.  
+  Ejemplo de variables utilizadas:
+
+| Variable | Descripción                                                   | Ejemplo |
+|----------|---------------------------------------------------------------|---------|
+| `DEV_PORT` | Puerto en el que se ejecuta la API                          | `8083` |
+| `DATABASE_URL` | Conexión a la base de datos                             | `postgresql+psycopg2://postgres:postgres@localhost:5432/ze_brands_test` |
+| `AUTO_MIGRATE` | Aplicar migraciones automáticamente al levantar la API  | `true` |
+| `MIGRATION_PATH` | Ruta de migraciones                                   | `migrations` |
+| `SECRET_KEY` | Llave secreta para JWT                                    | `supersecretkey12345` |
+| `ALGORITHM` | Algoritmo de JWT                                           | `HS256` |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Minutos de expiración del token JWT      | `60` |
+| `DEFAULT_ADMIN_USERNAME` | Usuario administrador por defecto             | `administrator` |
+| `DEFAULT_ADMIN_PASSWORD` | Contraseña administrador por defecto          | `Adm1n1str@tor` |
+| `DEFAULT_ADMIN_EMAIL` | Email administrador por defecto                  | `admin@gmail.com` |
+| `SES_REGION_NAME` | Región AWS SES                                       | `us-east-1` |
+| `SES_SENDER_EMAIL` | Email remitente de notificaciones                   | `no-reply@your-domain.com` |
+| `SES_RECIPIENT_EMAIL` | Email destinatario de notificaciones             | `notify@your-domain.com` |
+| `AWS_ACCESS_KEY_ID` | Access Key de AWS                                  | `***` |
+| `AWS_SECRET_ACCESS_KEY` | Secret Key de AWS                              | `***` |
+| `AWS_DEFAULT_REGION` | Región de AWS                                     | `us-east-1` |
+
+Exportar las variables:
+```bash
+source .env
+```
+
+---
+
+## 🚀 Ejecución del proyecto
+
+### 1. Instalar dependencias
+```bash
+poetry install
+```
+
+### 2. Activar el entorno virtual
+```bash
+source .venv/bin/activate
+# o
+poetry shell
+```
+
+### 3. Linter
+```bash
 poetry exec lint
+```
+
+### 4. Tests
+```bash
 poetry exec test
-poetry migrate
+```
 
-# Con docker-compose (dev)
-docker compose up --build
-y la API queda expuesta en http://localhost:8081
+### 5. Migraciones
+Automáticamente al levantar la API se aplican migraciones, pero también pueden correrse manualmente:
+```bash
+poetry exec migrate
+poetry run migrate-up
+```
 
-# Crear imagen y subirla a AWS ECR
-Paso 1: Login a ECR
-aws ecr create-repository --repository-name ze-brands-test
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
+### 6. Levantar la API
+```bash
+poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port ${DEV_PORT:-8000}
+```
 
-Paso 2: Construir y etiquetar imagen
-docker build -t ze-brands-test .
-docker tag ze-brands-test:latest <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/ze-brands-test:latest
+### 7. Documentación
+- **Swagger UI** → [http://localhost:8080/docs](http://localhost:8080/docs)  
+- **Redoc** → [http://0.0.0.0:8080/](http://0.0.0.0:8080/)  
 
-Paso 3: Push a ECR
-docker push <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/ze-brands-test:latest
+📸 Documentación API:  
+![Swagger y Redoc](images/openapi-documentation.png)
 
+---
 
-docker run --rm \
-  --env-file .env \
-  <AWS_ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/ze-brands-test:latest \
-  poetry run migrate
+## 🔐 Seguridad
+
+- Creación de usuarios con **password hasheado**  
+- **Login con JWT**  
+- **Autorización por roles** en los endpoints  
+- Usuarios deben estar **verificados** para ciertas operaciones  
+- Notificación de cambios de usuario vía **AWS SES**  
+- Debe configurar sus credenciales de AWS y los usuarios para SES deben estar verificados
+
+📸 Ejemplo de notificación:  
+![Notificación de cambios con SES](images/notify-product-changes.png)
+
+---
+
+## 🛠️ Buenas prácticas
+
+He aplicado **arquitectura hexagonal centrada en Domain-Driven Design (DDD)**, lo cual favorece el uso de patrones **SOLID** y fomenta buenas prácticas de desarrollo.  
+
+### Dependencias clave y buenas prácticas aplicadas
+
+- **[Poetry](https://python-poetry.org/)** → Gestión de dependencias y entornos virtuales.  
+- **[Ruff](https://github.com/astral-sh/ruff)** → Linter rápido que asegura calidad del código.  
+- **[Black](https://black.readthedocs.io/)** → Formateador automático para mantener estilo consistente.  
+- **[Lagom](https://github.com/meadsteve/lagom)** → Inyección de dependencias que facilita pruebas y modularidad.  
+- **[Yoyo Migrations](https://ollycope.com/software/yoyo/latest/)** → Migraciones de base de datos versionadas. 
+- **[Pytest](https://docs.pytest.org/)** → Framework de testing simple y potente.  
+- **[Pre-commit](https://pre-commit.com/)** → Automatización de validaciones antes de cada commit.  
+- Cobertura de tes con pytest-cov
+
+Con estas dependencias se logra:  
+- Código más mantenible y consistente.  
+- Facilidad para pruebas unitarias y de integración.  
+- Separación clara de responsabilidades.  
+- Escalabilidad y flexibilidad en la evolución del sistema.  
+
+### Pre-commit hooks configurados
+
+- Linter (**Ruff, Black, isort**)  
+- Tests (**pytest**)  
+- Formateo de código y validaciones de commits  
+
+```bash
+poetry run pre-commit clean
+poetry run pre-commit install
+poetry run pre-commit run --all-files
+```
+![img.png](images/pre-commit.png)
+
+📸 Test suite:  
+![Tests y cobertura](images/suite-test.png)
+
+📸 Coverage test:  
+![test.png](images/test-and-cov.png)
+
+- Tests de integración con DB simulada
+- Cobertura actual: **142 tests → 90% coverage**
+
+---
+
+## 📂 Recursos adicionales
+
+- `openapi.yml` → documentación OpenAPI generada automáticamente  
+Se adjuntó en la carpeta `documents` el archivo **OpenAPI Spec (`openapi.yml`)** → [📄 documentation/openapi.yml](documentation/openapi.yml)  
+Que puede renderizar en `https://editor.swagger.io/`
+- `ZeBrands Catalog API.postman_collection.json` → colección de Postman lista con variables de entorno y suite de pruebas  
+Se adjuntó en la carpeta `documents` el archivo de la **Colección Postman** → [📄 documentation/ZeBrands Catalog API.postman_collection.json](documentation/ZeBrands%20Catalog%20API.postman_collection.json) 
+El cual puede importar directamente en postman
+
+---
+
+## 📦 Docker & Despliegue (pendiente)
+1. Despliegue local
+
+    He creado `README_DEPLOY_LOCAL.md` para abordar los temas de contenedores
+
+    Aquí explico cómo levantar la API en un entorno local con docker
+    
+    [📄 README_DEPLOY_LOCAL.md](README_DEPLOY_LOCAL.md)  
+
+2. Despliegue en AWS
+
+    He creado `README_DEPLOY_PROD.md` para abordar despliegue en un AWS
+    Aquí explico cómo desplegar con docker en un entorno real de AWS.
+
+    Importante:  tu máquina local debe contar con el perfil de AWS configurado en ~/.aws/credentials y ~/.aws/config (con tu aws_access_key_id, aws_secret_access_key, region, etc.)
+
+    [📄 README_DEPLOY_PROD.md](README_DEPLOY_PROD.md)  
+
+---
+
+## 🔗 Repositorio
+```bash
+git remote add origin https://github.com/grleyvaj/ze-brands-test
+```

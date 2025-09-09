@@ -33,6 +33,7 @@ ignore = [
     "ANN204",
     "ANN401",
     "TRY002",
+    "BLE001"
 ]
 
 # Variables dummy permitidas
@@ -44,11 +45,14 @@ fixable = [
     "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE",
     "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL",
     "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH",
-    "TID", "TRY", "UP", "YTT"
+    "TID", "TRY", "UP", "YTT",
 ]
 
 # Reglas que Ruff no puede corregir
 unfixable = []
 
 # Ignorar reglas solo en tests
-per-file-ignores = { "tests/*" = ["E501", "S101", "ANN201"] }
+per-file-ignores = { "tests/*" = [
+    "E501", "S101", "ANN201", "SIM105", "SLF001", "BLE001", "S110",
+    "PLR0912", "PLR0915", "C901", "S106", "S105",
+] }

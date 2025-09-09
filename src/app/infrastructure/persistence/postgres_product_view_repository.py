@@ -42,3 +42,15 @@ class PostgresProductViewRepository(ProductViewRepository):
             logger.exception(f"Error incrementing view for product {product_id}")
             session.rollback()
             raise
+
+    def delete_views_by_product_id(self, product_id: str) -> None:
+        session = self.database_repository.get_db_session()
+        try:
+            session.query(ProductViewCountEntity).filter(
+                ProductViewCountEntity.product_id == product_id,
+            ).delete(synchronize_session=False)
+            session.commit()
+        except SQLAlchemyError:
+            logger.exception(f"Error deleting views for product {product_id}")
+            session.rollback()
+            raise

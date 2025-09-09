@@ -109,7 +109,7 @@ def update_user(
         Path(
             ...,
             description="User identifier in ULID format",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ],
 ) -> UserDetailResponse:
@@ -148,7 +148,7 @@ def delete_user(
         Path(
             ...,
             description="User identifier in ULID format",
-            example="01K4EH5T4YQERHJ99RM1SWYV99",
+            examples=["01K4EH5T4YQERHJ99RM1SWYV99"],
         ),
     ],
 ) -> None:

@@ -6,10 +6,34 @@ authors = ["Raquel <tu@email.com>"]
 readme = "README.md"
 packages = [{ include = "app", from = "src" }]
 
+[tool.coverage.run]
+branch = true
+source = ["src/app"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "if TYPE_CHECKING:",
+    "pragma: no cover",
+]
+
+[tool.pytest.ini_options]
+addopts = """
+    --cov=src/app \
+    --cov-report=term-missing \
+    --cov-report=html:coverage/html \
+    --cov-report=xml:coverage/coverage.xml
+"""
+postgresql_dbname = "test_db"
+filterwarnings = [
+    "ignore:'crypt' is deprecated:DeprecationWarning",
+]
+
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.110.0"
-uvicorn = { extras = ["standard"], version = "^0.29.0" }
+uvicorn = "^0.29.0"
 sqlalchemy = "^2.0.30"
 ulid-py = "^1.1.0"
 psycopg2-binary = "^2.9.9"
@@ -18,7 +42,7 @@ pydantic-settings = "^2.10.1"
 python-jose = { version = "^3.5.0", extras = ["cryptography"] }
 bcrypt = "^3.2.0"
 passlib = { version = "^1.7.4", extras = ["bcrypt"] }
-pydantic = {extras = ["email"], version = "^2.11.7"}
+pydantic = { extras = ["email"], version = "^2.11.7" }
 boto3 = "^1.40.25"
 
 [tool.poetry.group.dev.dependencies]
@@ -29,6 +53,9 @@ ruff = "^0.12"
 pre-commit = "^3.4"
 black = "^24.10"
 yoyo-migrations = "^9.0.0"
+pytest-postgresql = "^7.0.2"
+psycopg2-binary = "^2.9.10"
+pytest-cov = "^6.3.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -4,6 +4,9 @@ from app.domain.enums.code_enum import ErrorCodeEnum
 
 
 class DataValidationError(Exception):
+    code: ErrorCodeEnum
+    location: list[Any]
+    message: str
 
     def __init__(
         self: "DataValidationError",

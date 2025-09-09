@@ -1,28 +1,38 @@
-# Imagen base oficial de Python
 FROM python:3.12-slim
 
-# Configuración de directorio
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
 WORKDIR /app
 
-# Instalar dependencias del sistema
-RUN apt-get update && apt-get install -y \
-    build-essential libpq-dev curl && \
-    rm -rf /var/lib/apt/lists/*
+# system deps (build tools + libpq)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libpq-dev curl git \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar Poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH="/root/.local/bin:$PATH"
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 - --version 1.8.0
+ENV PATH="/root/.local/bin:${PATH}"
 
-# Copiar archivos de proyecto
+# Copy only dependency files first
 COPY pyproject.toml poetry.lock* /app/
-RUN poetry install --no-root --only main
 
-# Copiar el código
-COPY src/ /app/src
-COPY .env /app/.env
+# Install deps in /opt/venv instead of /app/.venv
+RUN poetry config virtualenvs.in-project false \
+    && poetry config virtualenvs.path /opt/venv \
+    && poetry install --no-interaction --no-ansi --with dev --all-extras \
+    && poetry self add poetry-exec-plugin
 
-# Exponer puerto (el mismo que DEV_PORT)
-EXPOSE 8081
+# Add venv to PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Comando para arrancar FastAPI con Uvicorn
-CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8081"]
+# Copy the rest of the code (safe now)
+COPY . /app
+
+# Ensure entrypoint has exec permission
+RUN chmod +x /app/scripts/entrypoint.sh
+
+EXPOSE 8083
+
+ENV PYTHONPATH="/app/src:${PYTHONPATH}"
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
